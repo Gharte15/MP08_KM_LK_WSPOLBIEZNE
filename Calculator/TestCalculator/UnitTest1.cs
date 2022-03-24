@@ -49,20 +49,26 @@ namespace TestCalculator
         [TestMethod]
         public void TestDivide()
         {
-            double a = 4;
+            double a = 8;
             double b = 2;
 
             CalculatorOperations operations = new CalculatorOperations();
 
-            try
-            {
-                double c = operations.Divide(a, b);
-                Assert.AreEqual(2, c);
-            }
-            catch (System.DivideByZeroException e)
-            {
+            double c = operations.Divide(a, b);
+            Assert.AreEqual(4, c);
+        }
 
-            }
+        [TestMethod]
+        [ExpectedException(typeof(System.DivideByZeroException))]
+
+        public void TestDivideByZero()
+        {
+            double a = 4;
+            double b = 0;
+
+            CalculatorOperations operations = new CalculatorOperations();
+
+            double c = operations.Divide(a, b);
         }
 
 
