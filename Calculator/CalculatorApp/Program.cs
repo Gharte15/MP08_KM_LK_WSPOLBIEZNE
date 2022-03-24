@@ -6,7 +6,7 @@ Console.WriteLine("[3] Mnozenie");
 Console.WriteLine("[4] Dzielenie");
 Console.Write("Wybor: ");
 
-int operation = Convert.ToInt32(Console.ReadLine());
+int choice = Convert.ToInt32(Console.ReadLine());
 
 Console.Write("Podaj pierwsza liczbe: ");
 int a = Convert.ToInt32(Console.ReadLine());
@@ -16,7 +16,7 @@ int b = Convert.ToInt32(Console.ReadLine());
 
 CalculatorOperations operations = new CalculatorOperations();
 
-switch (operation)
+switch (choice)
 {
     case 1:
         Console.WriteLine("a + b = " + operations.Add(a, b));
