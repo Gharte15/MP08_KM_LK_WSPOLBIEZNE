@@ -1,5 +1,5 @@
 ﻿namespace Logic {
-using Data;
+
     public class BallController
     {
         public BallController()
