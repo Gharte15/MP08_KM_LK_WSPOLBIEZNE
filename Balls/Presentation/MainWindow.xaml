@@ -5,11 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:View"
         mc:Ignorable="d"
-        Title="Balls" Height="" Width="1920" WindowStartupLocation="CenterScreen">
+        Title="Balls" Height="1080" Width="1920" WindowStartupLocation="CenterScreen">
     <Grid Margin="10">
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -18,8 +18,9 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Label>Start</Label>
-        <Label>Add ball</Label>
+        <Button Name="Start" Height="100" Width="250" Margin="10,10,690,412" FontSize="40">Start</Button>
+        <Button Name="Add ball" Height="100" Width="250" Margin="10,161,690,261" FontSize="40">Add ball</Button>
+        
 
     </Grid>
 </Window>
