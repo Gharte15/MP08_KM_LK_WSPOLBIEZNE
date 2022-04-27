@@ -3,23 +3,32 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:View"
         mc:Ignorable="d"
-        Title="Balls" Height="" Width="1920" WindowStartupLocation="CenterScreen">
-    <Grid Margin="10">
+        Title="Balls" Height="1080" Width="1920" WindowStartupLocation="CenterScreen">
+    <Canvas Name="MainCanvas" Height="720" Width="1200">
+        <Button Name="Start" Content="Start" Height="100" Width="250" Canvas.Left="10" Canvas.Top="10" FontSize="40" Click="buttonStartClicked"/>
+        <TextBox Name="NumberOfBalls" Height="100" Width="250" Canvas.Left="10" Canvas.Top="140" FontSize="40" Text="{Binding NumberOfBalls,UpdateSourceTrigger=PropertyChanged}"/>
+        
+    <Ellipse Name="elips" Width="20" Height="20" Fill="Red" Canvas.Left="96">
 
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+        <Ellipse.Triggers>
+            <EventTrigger RoutedEvent="Ellipse.Loaded">
+                <BeginStoryboard>
+                    <Storyboard TargetName="elips" 
+                                TargetProperty="(Canvas.Top)"
+                                RepeatBehavior="Forever">
+                        <DoubleAnimationUsingKeyFrames>
+                            <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="96" />
+                            <SplineDoubleKeyFrame KeyTime="0:0:1" Value="480" 
+                                                  KeySpline="0.25 0, 0.6 0.2" />
+                            <SplineDoubleKeyFrame KeyTime="0:0:2" Value="96"
+                                                  KeySpline="0.75 1, 0.4 0.8" />
+                        </DoubleAnimationUsingKeyFrames>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Ellipse.Triggers>
+    </Ellipse>
 
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-
-        <Label>Start</Label>
-        <Label>Add ball</Label>
-
-    </Grid>
+    </Canvas>
 </Window>
