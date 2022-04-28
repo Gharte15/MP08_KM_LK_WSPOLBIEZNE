@@ -7,7 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="EcoCore" Version="7.0.0.14006" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Data\Data.csproj" />
+  </ItemGroup>
+	
+  <ItemGroup>
+	  <Reference Include="WindowsBase">
+		  <HintPath>
+			  C:\ProgramFiles (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\WindowsBase.dll
+		  </HintPath>
+	  </Reference>
   </ItemGroup>
 
 </Project>
