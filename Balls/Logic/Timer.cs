@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Threading;
+using System.Windows.Threading;
 
 namespace Logic
 {

@@ -1,33 +1,54 @@
 ﻿using System;
-using Data;
 
 namespace Logic
 {
     public class Ball
     {
-        private int x, y, r, v;
-        public int X { get; set; }
-        public int Y { get; set; }
-        public int R { get; set; }
-        public int V { get; set; }
+        private int x, y, r;
+        public int X 
+        { 
+            get => x;
+            set
+            {
+                x = value;
+            }
+        }
 
-        public Ball(int x, int y, int r, int v)
+        public int Y
         {
-            X = x;
-            Y = y;
-            R = r;
-            V = v;
+            get => y;
+            set
+            {
+                y = value;
+            }
+        }
+
+        public int R
+        {
+            get => r;
+            set
+            {
+                r = value;
+            }
+        }
+
+        public Ball(int x, int y, int r)
+        {
+            this.x = x;
+            this.y = y;
+            this.r = r;
+            
         }
 
         public void MoveBall(int height, int width)
         {
-            if(x + r < width && x + r > 0)
+            if (x + r < width && x + r > 0)
             {
                 x = x + r;
             }
             else
             {
-                if(x + r == width)
+                if (x + r >= width)
                 {
                     x = width;
                 }
@@ -35,15 +56,16 @@ namespace Logic
                 {
                     x = 0;
                 }
+                r *= -1;
             }
-            
-            if(y + r < height && y + r > 0)
+
+            if (y + r < height && y + r > 0)
             {
                 y = y + r;
             }
             else
             {
-                if(y + r == height)
+                if (y + r >= height)
                 {
                     y = height;
                 }
@@ -51,6 +73,7 @@ namespace Logic
                 {
                     y = 0;
                 }
+                r *= -1;
             }
         }
 
