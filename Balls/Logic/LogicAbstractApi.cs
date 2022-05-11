@@ -9,6 +9,7 @@ namespace Logic
         public abstract event EventHandler Update;
         public abstract int Width { get; }
         public abstract int Height { get; }
+        protected int width, height;
         public abstract List<Ball> balls { get; }
         public abstract void CreateBallsList(int count);
         public abstract void UpdateBalls();
@@ -22,6 +23,8 @@ namespace Logic
 
         public static LogicAbstractApi CreateApi(int height, int width, TimerApi timer = default(TimerApi))
         {
+            height = Board.height;
+            width = Board.width;
             return new LogicApi(height, width, timer ?? TimerApi.CreateBallTimer());
         }
 
@@ -31,14 +34,25 @@ namespace Logic
         private readonly TimerApi timer;
         private DataAbstractApi data;
 
-        public override int Width { get; }
-        public override int Height { get; }
-        public override List<Ball> balls { get; }
+        public override int Width 
+        { 
+            get { return width; } 
+        }
+        public override int Height 
+        { 
+            get { return height; } 
+        }
+
+        public override List<Ball> balls 
+        { 
+            get; 
+        }
+
         public LogicApi(int height, int width, TimerApi WPFTimer)
         {
             data = DataAbstractApi.CreateApi();
-            Width = width;
-            Height = height;
+            width = Board.width;
+            height = Board.height;
             timer = WPFTimer;
             balls = new List<Ball>();
             SetInterval(25);
@@ -52,8 +66,8 @@ namespace Logic
                 for (int i = 0; i < number; i++)
                 {
                     int r = 20;
-                    int x = random.Next(r, Width - r);
-                    int y = random.Next(r, Height - r);
+                    int x = random.Next(r, Board.width - r);
+                    int y = random.Next(r, Board.height - r);
                     Ball ball = new Ball(x, y, r);
                     balls.Add(ball);
                 }
@@ -82,7 +96,7 @@ namespace Logic
         {
             foreach (Ball ball in balls)
             {
-                ball.MoveBall(Height, Width);
+                ball.MoveBall(Board.height, Board.width);
 
             }
         }

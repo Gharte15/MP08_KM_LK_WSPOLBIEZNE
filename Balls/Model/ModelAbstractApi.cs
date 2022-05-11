@@ -1,4 +1,5 @@
 ﻿using Logic;
+using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
@@ -35,8 +36,8 @@ namespace Model
         public ModelApi(int Height, int Width)
         {
 
-            width = Width;
-            height = Height;
+            width = LogicLayer.Width;
+            height = LogicLayer.Height;
             LogicLayer = LogicAbstractApi.CreateApi(width, height);
             Canvas = new Canvas();
             ellipseCollection = new List<Ellipse>();

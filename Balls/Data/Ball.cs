@@ -1,10 +1,10 @@
 ﻿using System;
-using Data;
-namespace Logic
+namespace Data
 {
     public class Ball
     {
-        private int x, y, r;
+        private int x, y, r, weight;
+        public readonly int xBorder, yBorder;
         public int X 
         { 
             get => x;
@@ -38,6 +38,15 @@ namespace Logic
             this.y = y;
             this.r = r;
             
+        }
+
+        public int Weight
+        {
+            get => weight;
+            set
+            {
+                weight = value;
+            }
         }
 
         public void MoveBall(int height, int width)
