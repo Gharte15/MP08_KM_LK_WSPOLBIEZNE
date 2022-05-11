@@ -35,16 +35,16 @@ namespace Model
         public override Canvas Canvas { get; set; }
         public ModelApi(int Height, int Width)
         {
-
-            width = LogicLayer.Width;
-            height = LogicLayer.Height;
             LogicLayer = LogicAbstractApi.CreateApi(width, height);
+            width = Width;
+            height = Height;
             Canvas = new Canvas();
             ellipseCollection = new List<Ellipse>();
             Canvas.HorizontalAlignment = HorizontalAlignment.Center;
             Canvas.VerticalAlignment = VerticalAlignment.Center;
             Canvas.Width = width;
             Canvas.Height = height;
+            Canvas.Background = new SolidColorBrush(Color.FromRgb(241, 237, 237));
             LogicLayer.Update += (sender, args) => Move();
         }
         public override void CreateEllipses(int numberOfBalls)
@@ -61,7 +61,9 @@ namespace Model
                 };
                 Canvas.SetLeft(ellipse, LogicLayer.GetX(i));
                 Canvas.SetTop(ellipse, LogicLayer.GetY(i));
-            
+                //Canvas.SetLeft(ellipse, 0);
+                //Canvas.SetTop(ellipse, 0);
+
                 ellipseCollection.Add(ellipse);
                 Canvas.Children.Add(ellipse);
             }
@@ -71,6 +73,7 @@ namespace Model
 
         public override void Move()
         {
+
             for (int i = 0; i < LogicLayer.GetCount; i++)
             {
                 Canvas.SetLeft(ellipseCollection[i], LogicLayer.GetX(i));

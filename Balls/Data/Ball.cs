@@ -51,7 +51,7 @@ namespace Data
 
         public void MoveBall(int height, int width)
         {
-            if (x + r < width && x + r > 0)
+            if (x + r < width - r && x + r >= 0)
             {
                 x = x + r;
             }
@@ -68,7 +68,7 @@ namespace Data
                 r *= -1;
             }
 
-            if (y + r < height && y + r > 0)
+            if (y + r < height - r && y + r > 0)
             {
                 y = y + r;
             }

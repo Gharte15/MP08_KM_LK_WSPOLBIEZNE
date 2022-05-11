@@ -11,13 +11,10 @@ namespace ViewModel
 
         public MainWindowViewModel()
         {
-
-            ModelLayer = ModelAbstractApi.CreateApi(300, 300);
+            ModelLayer = ModelAbstractApi.CreateApi(400, 400);
             Scommand = new RelayCommand(Stop);
             Acommand = new RelayCommand(CreateEllipses);
-
         }
-
 
         public ICommand Scommand
         { get; set; }
@@ -42,13 +39,15 @@ namespace ViewModel
         public Canvas Canvas
         {
             get => ModelLayer.Canvas;
-
         }
 
         private void CreateEllipses()
         {
-            ModelLayer.CreateEllipses(NumberOfBalls);
+            ModelLayer.CreateEllipses(_NumberOfBalls);
         }
+
+
+        //public BindableCollection<> balls { get; set; }
 
         private void Stop()
         {

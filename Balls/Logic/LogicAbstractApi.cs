@@ -13,6 +13,7 @@ namespace Logic
         public abstract List<Ball> balls { get; }
         public abstract void CreateBallsList(int count);
         public abstract void UpdateBalls();
+        public abstract bool DetectCollision(Ball ball1, Ball ball2);
         public abstract void Start();
         public abstract void Stop();
         public abstract void SetInterval(int ms);
@@ -97,8 +98,19 @@ namespace Logic
             foreach (Ball ball in balls)
             {
                 ball.MoveBall(Board.height, Board.width);
-
             }
+        }
+
+        public override bool DetectCollision(Ball ball1, Ball ball2)
+        {
+            bool flag = false;
+
+            if((ball1.X - ball2.X <= ball2.R) && (ball1.Y - ball2.Y == ball2.R))
+            {
+                flag = true;
+            }
+
+                return flag;
         }
 
         public override void Start()
