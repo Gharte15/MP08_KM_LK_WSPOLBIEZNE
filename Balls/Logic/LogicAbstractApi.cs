@@ -7,12 +7,10 @@ namespace Logic
 {
     public abstract class LogicAbstractApi
     {
-        public abstract event EventHandler Update;
-        public abstract IList balls { get; }
         public abstract int getXcoordinate(int i);
         public abstract int getYcoordinate(int i);
         public abstract int getSize(int i);
-        public abstract void CreateBallsList(int count);
+        public abstract IList CreateBallsList(int count);
         public abstract void UpdateBalls();
         public abstract bool DetectCollision(Ball ball1, Ball ball2);
         public abstract void Start();
@@ -29,31 +27,12 @@ namespace Logic
     {
         private DataAbstractApi data;
 
-        public override IList balls 
-        { 
-            get; 
-        }
-
         public LogicApi()
         {
             data = DataAbstractApi.CreateApi();
-            balls = new List<Ball>();
+            
         }
-        public override void CreateBallsList(int number)
-        {
-            Random random = new Random();
-            if (number > 0)
-            {
-                for (int i = 0; i < number; i++)
-                {
-                    int r = 20;
-                    int x = random.Next(r, data.Width - r);
-                    int y = random.Next(r, data.Height - r);
-                    Ball ball = new Ball(x, y, r);
-                    balls.Add(ball);
-                }
-            }
-        }
+        public override IList CreateBallsList(int number) => data.CreateBalls(number);
 
         public override int getSize(int i)
         {
@@ -69,7 +48,7 @@ namespace Logic
             return data.getY(i);
         }
 
-        public override int GetCount { get => balls.Count; }
+        public override int GetCount => data.GetCount;
 
         public override void UpdateBalls()
         {
@@ -83,7 +62,7 @@ namespace Logic
                 {
                     if(i != j)
                     {
-                        if (DetectCollision(balls[i], balls[j]))
+                        if (DetectCollision((Data.Ball)balls[i], (Data.Ball)balls[j]))
                         {
                             balls[i].R *= -1;
                             balls[j].R *= -1;

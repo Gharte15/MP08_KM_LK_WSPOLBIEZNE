@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.ObjectModel;
 
 namespace Data
@@ -7,9 +8,9 @@ namespace Data
     {
         public int Width { get; set; }
         public int Height { get; set; }
-
+        public abstract int GetCount();
         public abstract void MoveBall(Ball ball);
-
+        public abstract IList CreateBalls(int count);
         public abstract int getX(int i);
         public abstract int getY(int i);
         public abstract int getDiagonal(int i);
@@ -54,6 +55,23 @@ namespace Data
             return 2 * balls[i].R;
         }
 
+        public override IList CreateBalls(int number)
+        {
+            Random random = new Random();
+            if (number > 0)
+            {
+                for (int i = 0; i < number; i++)
+                {
+                    int r = 20;
+                    int x = random.Next(r, Board.width - r);
+                    int y = random.Next(r, Board.height - r);
+                    Ball ball = new Ball(x, y, r);
+                    balls.Add(ball);
+                }
+            }
+            return balls;
+        }
+
         public override void MoveBall(Ball ball)
         {
             if (ball.X + ball.R < Board.width - ball.R && ball.X + ball.R >= 0)
@@ -90,6 +108,15 @@ namespace Data
                 ball.R *= -1;
             }
             
+        }
+        public override int GetCount()
+        {
+            int counter = 0;
+            foreach(Ball ball in balls)
+            {
+                counter += 1;
+            }
+            return counter;
         }
     }
 }
