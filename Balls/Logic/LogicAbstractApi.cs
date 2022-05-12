@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Data;
 
@@ -7,57 +8,36 @@ namespace Logic
     public abstract class LogicAbstractApi
     {
         public abstract event EventHandler Update;
-        public abstract int Width { get; }
-        public abstract int Height { get; }
-        protected int width, height;
-        public abstract List<Ball> balls { get; }
+        public abstract IList balls { get; }
+        public abstract int getXcoordinate(int i);
+        public abstract int getYcoordinate(int i);
+        public abstract int getSize(int i);
         public abstract void CreateBallsList(int count);
         public abstract void UpdateBalls();
         public abstract bool DetectCollision(Ball ball1, Ball ball2);
         public abstract void Start();
         public abstract void Stop();
-        public abstract void SetInterval(int ms);
-        public abstract int GetDiagonal(int i);
-        public abstract int GetX(int i);
-        public abstract int GetY(int i);
         public abstract int GetCount { get; }
 
-        public static LogicAbstractApi CreateApi(int height, int width, TimerApi timer = default(TimerApi))
+        public static LogicAbstractApi CreateApi()
         {
-            height = Board.height;
-            width = Board.width;
-            return new LogicApi(height, width, timer ?? TimerApi.CreateBallTimer());
+            return new LogicApi();
         }
 
     }
     internal class LogicApi : LogicAbstractApi
     {
-        private readonly TimerApi timer;
         private DataAbstractApi data;
 
-        public override int Width 
-        { 
-            get { return width; } 
-        }
-        public override int Height 
-        { 
-            get { return height; } 
-        }
-
-        public override List<Ball> balls 
+        public override IList balls 
         { 
             get; 
         }
 
-        public LogicApi(int height, int width, TimerApi WPFTimer)
+        public LogicApi()
         {
             data = DataAbstractApi.CreateApi();
-            width = Board.width;
-            height = Board.height;
-            timer = WPFTimer;
             balls = new List<Ball>();
-            SetInterval(25);
-            timer.Tick += (sender, args) => UpdateBalls();
         }
         public override void CreateBallsList(int number)
         {
@@ -67,28 +47,26 @@ namespace Logic
                 for (int i = 0; i < number; i++)
                 {
                     int r = 20;
-                    int x = random.Next(r, Board.width - r);
-                    int y = random.Next(r, Board.height - r);
+                    int x = random.Next(r, data.Width - r);
+                    int y = random.Next(r, data.Height - r);
                     Ball ball = new Ball(x, y, r);
                     balls.Add(ball);
                 }
             }
         }
 
-        public override event EventHandler Update { add => timer.Tick += value; remove => timer.Tick -= value; }
-
-        public override int GetDiagonal(int i)
+        public override int getSize(int i)
         {
-            return 2 * balls[i].R;
+            return data.getDiagonal(i);
         }
-        public override int GetX(int i)
+        public override int getXcoordinate(int i)
         {
-            return balls[i].X;
+            return data.getX(i);
         }
 
-        public override int GetY(int i)
+        public override int getYcoordinate(int i)
         {
-            return balls[i].Y;
+            return data.getY(i);
         }
 
         public override int GetCount { get => balls.Count; }
@@ -97,7 +75,21 @@ namespace Logic
         {
             foreach (Ball ball in balls)
             {
-                ball.MoveBall(Board.height, Board.width);
+                data.MoveBall(ball);
+            }
+            for(int i = 0; i < balls.Count; i++)
+            {
+                for(int j = 0; j < balls.Count; j++)
+                {
+                    if(i != j)
+                    {
+                        if (DetectCollision(balls[i], balls[j]))
+                        {
+                            balls[i].R *= -1;
+                            balls[j].R *= -1;
+                        }
+                    }
+                }
             }
         }
 
@@ -115,17 +107,12 @@ namespace Logic
 
         public override void Start()
         {
-            timer.Start();
+            
         }
 
         public override void Stop()
         {
-            timer.Stop();
-        }
-
-        public override void SetInterval(int ms)
-        {
-            timer.Interval = TimeSpan.FromMilliseconds(ms);
+            
         }
     }
 }

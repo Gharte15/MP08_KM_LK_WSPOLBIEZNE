@@ -4,7 +4,6 @@ namespace Data
     public class Ball
     {
         private int x, y, r, weight;
-        public readonly int xBorder, yBorder;
         public int X 
         { 
             get => x;
@@ -49,42 +48,7 @@ namespace Data
             }
         }
 
-        public void MoveBall(int height, int width)
-        {
-            if (x + r < width - r && x + r >= 0)
-            {
-                x = x + r;
-            }
-            else
-            {
-                if (x + r >= width)
-                {
-                    x = width;
-                }
-                else
-                {
-                    x = 0;
-                }
-                r *= -1;
-            }
-
-            if (y + r < height - r && y + r > 0)
-            {
-                y = y + r;
-            }
-            else
-            {
-                if (y + r >= height)
-                {
-                    y = height;
-                }
-                else
-                {
-                    y = 0;
-                }
-                r *= -1;
-            }
-        }
+        
 
     }
 }
