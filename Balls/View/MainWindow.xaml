@@ -25,6 +25,16 @@
                  FontSize="24px" BorderBrush="Black" BorderThickness="3,3,3,3" />
         <Button Margin="195,510,195,5" Content="Start" FontSize="30" Command="{Binding Acommand}" />
 
+        <Canvas>
+            <ItemsControl>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Ellipse Height="{Binding Size}" Width="{Binding Size}"></Ellipse>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Canvas>
+
     </Grid>
 
 </Window>

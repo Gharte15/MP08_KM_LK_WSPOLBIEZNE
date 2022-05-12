@@ -8,6 +8,23 @@ namespace ViewModel
     {
         private readonly ModelAbstractApi ModelLayer;
         private int _NumberOfBalls;
+        public int ballIndex;
+        public int X { get
+            {
+                return ModelLayer.getX(ballIndex);
+            } }
+        public int Y
+        {
+            get
+            {
+                return ModelLayer.getY(ballIndex);
+            }
+        }
+       
+        public int Size { get
+            {
+                return ModelLayer.getSize(ballIndex);
+            } }
 
         public MainWindowViewModel()
         {
@@ -36,9 +53,9 @@ namespace ViewModel
             }
         }
 
-        public void CreateBalls(int NumberOfBalls)
+        public void CreateBalls()
         {
-            Model
+            ModelLayer.ModelBalls(NumberOfBalls);
         }
         //public BindableCollection<> balls { get; set; }
 
