@@ -9,6 +9,8 @@ namespace Data
         public int Width { get; set; }
         public int Height { get; set; }
         public abstract int GetCount();
+        public abstract void UpdateBalls();
+        public abstract bool DetectCollision(Ball ball1, Ball ball2);
         public abstract void MoveBall(Ball ball);
         public abstract IList CreateBalls(int count);
         public abstract int getX(int i);
@@ -118,5 +120,40 @@ namespace Data
             }
             return counter;
         }
+
+        public override void UpdateBalls()
+        {
+            foreach (Ball ball in balls)
+            {
+                MoveBall(ball);
+            }
+            for (int i = 0; i < balls.Count; i++)
+            {
+                for (int j = 0; j < balls.Count; j++)
+                {
+                    if (i != j)
+                    {
+                        if (DetectCollision(balls[i], balls[j]))
+                        {
+                            balls[i].R *= -1;
+                            balls[j].R *= -1;
+                        }
+                    }
+                }
+            }
+        }
+
+        public override bool DetectCollision(Ball ball1, Ball ball2)
+        {
+            bool flag = false;
+
+            if ((ball1.X - ball2.X <= ball2.R) && (ball1.Y - ball2.Y == ball2.R))
+            {
+                flag = true;
+            }
+
+            return flag;
+        }
+
     }
 }

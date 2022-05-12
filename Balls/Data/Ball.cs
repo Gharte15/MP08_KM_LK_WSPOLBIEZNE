@@ -1,4 +1,7 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+
 namespace Data
 {
     public class Ball
@@ -48,7 +51,12 @@ namespace Data
             }
         }
 
-        
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        internal void RaisePropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
     }
 }
