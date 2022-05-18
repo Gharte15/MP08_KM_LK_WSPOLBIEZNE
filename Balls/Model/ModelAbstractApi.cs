@@ -1,71 +1,49 @@
 ﻿using Logic;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Shapes;
 
 namespace Model
 {
     public abstract class ModelAbstractApi
     {
-        public abstract int height { get; }
         public abstract int width { get; }
-
-        public abstract IList ModelBalls(int ballNumber);
-        public abstract void Move();
-
+        public abstract int height { get; }
+        public abstract void StartMoving();
+        public abstract IList Start(int ballVal);
         public abstract void Stop();
 
-        public abstract int getX(int i);
-        public abstract int getY(int i);
-        public abstract int getSize(int i);
 
-
-        public static ModelAbstractApi CreateApi(int Height, int Width)
+        public static ModelAbstractApi CreateApi()
         {
-            return new ModelApi(Height, Width);
+            return new ModelApi();
         }
     }
     internal class ModelApi : ModelAbstractApi
     {
         public override int width { get; }
         public override int height { get; }
+        private readonly LogicAbstractApi LogicLayer;
 
-        private LogicAbstractApi LogicLayer;
-        public ModelApi(int Height, int Width)
+        public ModelApi()
         {
             LogicLayer = LogicAbstractApi.CreateApi();
-            width = Width;
-            height = Height;
-            
+            width = LogicLayer.Width;
+            height = LogicLayer.Height;
         }
 
-        public override IList ModelBalls(int ballNumber) => LogicLayer.CreateBallsList(ballNumber);
-
-        public override int getX(int i)
-        {
-            return LogicLayer.getXcoordinate(i);
-        }
-        public override int getY(int i)
-        {
-            return LogicLayer.getYcoordinate(i);
-        }
-        public override int getSize(int i)
-        {
-            return LogicLayer.getSize(i);  
-        }
-        public override void Move()
+        public override void StartMoving()
         {
             LogicLayer.Start();
         }
 
+
         public override void Stop()
         {
-          LogicLayer.Stop();
+            LogicLayer.Stop();
         }
+
+        public override IList Start(int ballVal) => LogicLayer.CreateBalls(ballVal);
+
     }
 
 }
