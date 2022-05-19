@@ -112,12 +112,9 @@ namespace Data
             X0 += X1;
             Y0 += Y1;
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        internal void RaisePropertyChanged([CallerMemberName] string propertyName = null)
+        public void Reset()
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            stop = true;
         }
         public void CreateTask(int period)
         {
