@@ -2,8 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using Data;
 
 namespace Logic
@@ -32,6 +35,7 @@ namespace Logic
         private int height;
         private readonly DataAbstractApi dataLayer;
         private readonly Mutex mutex = new Mutex();
+        private readonly object locker = new object();
 
         public LogicApi()
         {
@@ -51,6 +55,7 @@ namespace Logic
                 dataLayer.GetBall(i).CreateTask(30);
 
             }
+           
         }
 
         public override void Stop()
@@ -124,17 +129,21 @@ namespace Logic
 
                     double u2x = 2 * m1 * v1x / (m1 + m2) + (m2 - m1) * v2x / (m1 + m2);
                     double u2y = 2 * m1 * v1y / (m1 + m2) + (m2 - m1) * v2y / (m1 + m2);
-
+                   
+                    mutex.WaitOne();
                     ball.X1 = u1x;
                     ball.Y1 = u1y;
                     secondBall.X1 = u2x;
                     secondBall.Y1 = u2y;
-
+                    BallCollisionLog ballCollisionLog = new BallCollisionLog(ball, secondBall);
+                   
+                    dataLayer.AppendToFile("BallLog.json", ballCollisionLog);
+                    mutex.ReleaseMutex();
+                   
                 }
 
-
-
             }
+            
 
         }
         internal bool DetectCollision(IBall a, IBall b)
@@ -184,10 +193,10 @@ namespace Logic
         public override void BallPositionChanged(object sender, PropertyChangedEventArgs args)
         {
             IBall ball = (IBall)sender;
-            mutex.WaitOne();
+            //mutex.WaitOne();
             WallCollision(ball);
             ChangeDirection(ball);
-            mutex.ReleaseMutex();
+            //mutex.ReleaseMutex();
         }
 
 

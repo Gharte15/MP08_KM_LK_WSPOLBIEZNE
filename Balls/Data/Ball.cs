@@ -16,7 +16,7 @@ namespace Data
         double Weight { get; }
 
         int Identifier { get; }
-        void Move();
+        void Move(double time);
         void Stop();
         void CreateTask(int period);
     }
@@ -107,10 +107,10 @@ namespace Data
         public int R { get => r; }
         public int D { get => d; }
         public double Weight { get => weight; }
-        public void Move()
+        public void Move(double time)
         {
-            X0 += X1;
-            Y0 += Y1;
+            X0 += X1 * time;
+            Y0 += Y1 * time;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -133,7 +133,7 @@ namespace Data
                 stopwatch.Start();
                 if (!stop)
                 {
-                    Move();
+                    Move((period - stopwatch.ElapsedMilliseconds) / 16);
                 }
                 stopwatch.Stop();
 

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Text.Json;
 using System.Threading;
 
 namespace Data
@@ -13,6 +15,7 @@ namespace Data
         public abstract IList CreateBalls(int number);
 
         public abstract IBall GetBall(int index);
+        public abstract void AppendToFile(string filename, BallCollisionLog ballCollisionLog);
         public static DataAbstractApi CreateApi()
         {
             return new DataApi();
@@ -43,12 +46,15 @@ namespace Data
                 for (int i = 0; i < number; i++)
                 {
                     mutex.WaitOne();
+                    int Xrandomizer = random.Next(1, 2);
+                    int Yrandomizer = random.Next(1, 2);
                     int r = 10;
                     int weight = 30;
                     int x0 = random.Next(r, Width - r);
                     int y0 = random.Next(r, Height - r);
-                    int x1 = random.Next(-10, 10);
-                    int y1 = random.Next(-10, 10);
+
+                    int x1 = random.Next(-5, 5);
+                    int y1 = random.Next(-5, 5);
                     
                     Ball ball = new Ball(i + ballsCount, x0, y0, x1, y1, r, weight);
                     balls.Add(ball);
@@ -62,6 +68,14 @@ namespace Data
         public override IBall GetBall(int index)
         {
             return balls[index];
+        }
+
+        public override void AppendToFile(string filename, BallCollisionLog ballCollisionLog)
+        {
+            string collisionInfo = JsonSerializer.Serialize(ballCollisionLog);
+            string date = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss.fff");
+            string collisionLog = "{" + String.Format("\n\t\"Date\": \"{0}\",\n\t\"CollisionBetween\":{1}\n", date, collisionInfo) + "}";
+            File.AppendAllText(filename, collisionLog);
         }
 
     }
