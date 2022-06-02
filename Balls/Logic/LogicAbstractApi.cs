@@ -55,6 +55,7 @@ namespace Logic
                 dataLayer.GetBall(i).CreateTask(30);
 
             }
+            dataLayer.CreateLoggingTask(1000, dataLayer.GetBalls());
            
         }
 
@@ -65,6 +66,7 @@ namespace Logic
                 dataLayer.GetBall(i).Stop();
 
             }
+            dataLayer.StopLoggingTask();
         }
 
 
@@ -77,29 +79,34 @@ namespace Logic
 
             int bottomBorder = this.height - diameter;
 
-
+            
             if (ball.X0 <= 0)
             {
                 ball.X0 = -ball.X0;
                 ball.X1 = -ball.X1;
+                ball.BetweenWallCollisions += 1;
             }
 
             else if (ball.X0 >= rightBorder)
             {
                 ball.X0 = rightBorder - (ball.X0 - rightBorder);
                 ball.X1 = -ball.X1;
+                ball.BetweenWallCollisions += 1;
             }
             if (ball.Y0 <= 0)
             {
                 ball.Y0 = -ball.Y0;
                 ball.Y1 = -ball.Y1;
+                ball.BetweenWallCollisions += 1;
             }
 
             else if (ball.Y0 >= bottomBorder)
             {
                 ball.Y0 = bottomBorder - (ball.Y0 - bottomBorder);
                 ball.Y1 = -ball.Y1;
+                ball.BetweenWallCollisions += 1;
             }
+            
         }
 
         public override void ChangeDirection(IBall ball)
@@ -114,7 +121,6 @@ namespace Logic
 
                 if (DetectCollision(ball, secondBall))
                 {
-                  
                     double m1 = ball.Weight;
                     double m2 = secondBall.Weight;
                     double v1x = ball.X1;
@@ -130,18 +136,16 @@ namespace Logic
                     double u2x = 2 * m1 * v1x / (m1 + m2) + (m2 - m1) * v2x / (m1 + m2);
                     double u2y = 2 * m1 * v1y / (m1 + m2) + (m2 - m1) * v2y / (m1 + m2);
                    
-                    
+                    mutex.WaitOne();
                     ball.X1 = u1x;
                     ball.Y1 = u1y;
                     secondBall.X1 = u2x;
                     secondBall.Y1 = u2y;
-
-                    mutex.WaitOne();
+                    ball.BetweenBallsCollisions += 1;
+                    secondBall.BetweenBallsCollisions += 1;
                     BallCollisionLog ballCollisionLog = new BallCollisionLog(ball, secondBall);
-                    dataLayer.AppendToFile("BallLog.json", ballCollisionLog);
-
+                    dataLayer.AppendToFile("BallsLog.json", ballCollisionLog);
                     mutex.ReleaseMutex();
-                   
                 }
 
             }
@@ -195,10 +199,11 @@ namespace Logic
         public override void BallPositionChanged(object sender, PropertyChangedEventArgs args)
         {
             IBall ball = (IBall)sender;
-            //mutex.WaitOne();
+            mutex.WaitOne();
             WallCollision(ball);
+            mutex.ReleaseMutex();
             ChangeDirection(ball);
-            //mutex.ReleaseMutex();
+
         }
 
 

@@ -14,6 +14,8 @@ namespace Data
         double Y1 { get; set; }
         int R { get;}
         double Weight { get; }
+        double BetweenBallsCollisions { get; set; }
+        double BetweenWallCollisions { get; set; }
 
         int Identifier { get; }
         void Move(double time);
@@ -27,6 +29,8 @@ namespace Data
         private double y0;
         private double x1;
         private double y1;
+        private double betweenBallsCollisions;
+        private double betweenWallCollisions;
         private readonly int r;
         private readonly int d;
         private readonly double weight;
@@ -35,7 +39,7 @@ namespace Data
         private Task task;
         private bool stop = false;
 
-        public Ball(int id, double x0, double y0, double x1, double y1, int r, double weight)
+        public Ball(int id, double x0, double y0, double x1, double y1, int r, double weight, double c)
         {
             identifier = id;
             this.x0 = x0;
@@ -45,6 +49,8 @@ namespace Data
             this.r = r;
             this.weight = weight;
             this.d = 2 * r;
+            this.betweenBallsCollisions = c;
+            this.betweenWallCollisions = c;
         }
 
         public int Identifier { get => identifier; }
@@ -104,6 +110,33 @@ namespace Data
             }
         }
 
+        public double BetweenBallsCollisions
+        {
+            get => betweenBallsCollisions;
+            set
+            {
+                if (value.Equals(betweenBallsCollisions))
+                {
+                    return;
+                }
+
+                betweenBallsCollisions = value;
+            }
+        }
+        public double BetweenWallCollisions
+        {
+            get => betweenWallCollisions;
+            set
+            {
+                if (value.Equals(betweenWallCollisions))
+                {
+                    return;
+                }
+
+                betweenWallCollisions = value;
+            }
+        }
+
         public int R { get => r; }
         public int D { get => d; }
         public double Weight { get => weight; }
@@ -144,6 +177,7 @@ namespace Data
         {
             stop = true;
         }
+       
 
 
     }

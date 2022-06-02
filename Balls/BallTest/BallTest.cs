@@ -47,7 +47,7 @@ namespace BallTest
             double y0 = dataLayer.GetBall(0).Y0;
             dataLayer.GetBall(0).X1 = 1;
             dataLayer.GetBall(0).Y1 = 1;
-            dataLayer.GetBall(0).Move();
+            dataLayer.GetBall(0).Move(1);
             Assert.AreNotEqual(x0, dataLayer.GetBall(0).X0);
             Assert.AreNotEqual(y0, dataLayer.GetBall(0).Y0);
             Assert.AreEqual(dataLayer.GetBall(0).X0, x0 + dataLayer.GetBall(0).X1);
@@ -74,8 +74,8 @@ namespace BallTest
             logicLayer.GetBall(1).Y0 = 55;
             logicLayer.GetBall(1).X1 = -5;
             logicLayer.GetBall(1).Y1 = -5;
-            logicLayer.GetBall(0).Move();
-            logicLayer.GetBall(1).Move();
+            logicLayer.GetBall(0).Move(10);
+            logicLayer.GetBall(1).Move(10);
             Assert.AreNotEqual(50, logicLayer.GetBall(0).X0);
             Assert.AreNotEqual(50, logicLayer.GetBall(0).Y0);
             
@@ -93,8 +93,8 @@ namespace BallTest
             logicLayer.GetBall(1).Y0 = 470;
             logicLayer.GetBall(1).X1 = 0;
             logicLayer.GetBall(1).Y1 = 10;
-            logicLayer.GetBall(0).Move();
-            logicLayer.GetBall(1).Move();
+            logicLayer.GetBall(0).Move(1);
+            logicLayer.GetBall(1).Move(1);
             Assert.AreNotEqual(20, logicLayer.GetBall(0).X0);
             Assert.AreNotEqual(470, logicLayer.GetBall(1).Y0);
         }
