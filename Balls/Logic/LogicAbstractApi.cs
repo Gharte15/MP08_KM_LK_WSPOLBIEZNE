@@ -135,17 +135,27 @@ namespace Logic
 
                     double u2x = 2 * m1 * v1x / (m1 + m2) + (m2 - m1) * v2x / (m1 + m2);
                     double u2y = 2 * m1 * v1y / (m1 + m2) + (m2 - m1) * v2y / (m1 + m2);
-                   
-                    mutex.WaitOne();
-                    ball.X1 = u1x;
-                    ball.Y1 = u1y;
-                    secondBall.X1 = u2x;
-                    secondBall.Y1 = u2y;
-                    ball.BetweenBallsCollisions += 1;
-                    secondBall.BetweenBallsCollisions += 1;
-                    BallCollisionLog ballCollisionLog = new BallCollisionLog(ball, secondBall);
-                    dataLayer.AppendToFile("BallsLog.json", ballCollisionLog);
-                    mutex.ReleaseMutex();
+
+                    lock (ball)
+                    {
+                        ball.X1 = u1x;
+                        ball.Y1 = u1y;
+                        ball.BetweenBallsCollisions += 1;
+                    }
+                    lock (secondBall)
+                    {
+                        secondBall.X1 = u2x;
+                        secondBall.Y1 = u2y;
+                        secondBall.BetweenBallsCollisions += 1;
+                    }
+ 
+                    lock (locker)
+                    {
+                        BallCollisionLog ballCollisionLog = new BallCollisionLog(ball, secondBall);
+                        dataLayer.AppendToFile("BallsLog.json", ballCollisionLog);
+                    }
+                    
+                    
                 }
 
             }
@@ -201,9 +211,9 @@ namespace Logic
             IBall ball = (IBall)sender;
             mutex.WaitOne();
             WallCollision(ball);
-            mutex.ReleaseMutex();
+            mutex.ReleaseMutex();                  
             ChangeDirection(ball);
-
+            
         }
 
 

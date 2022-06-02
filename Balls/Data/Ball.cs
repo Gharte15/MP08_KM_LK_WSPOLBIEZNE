@@ -142,8 +142,11 @@ namespace Data
         public double Weight { get => weight; }
         public void Move(double time)
         {
-            X0 += X1 * time;
-            Y0 += Y1 * time;
+            lock (this)
+            {
+                X0 += X1 * time;
+                Y0 += Y1 * time;
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

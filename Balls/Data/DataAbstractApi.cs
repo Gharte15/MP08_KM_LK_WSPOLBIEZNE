@@ -85,28 +85,25 @@ namespace Data
             stop = true;
         }
 
-        public override Task CreateLoggingTask(int interval, IList Balls)
+        public override Task CreateLoggingTask(int period, IList Balls)
         {
             stop = false;
-            return CallLogger(interval, Balls);
+            return CallLogger(period, Balls);
         }
 
-        internal async Task CallLogger(int interval, IList Balls)
+        internal async Task CallLogger(int period, IList Balls)
         {
             while (!stop)
             {
                 stopWatch.Reset();
                 stopWatch.Start();
-                var options = new JsonSerializerOptions { WriteIndented = true };
-                string jsonBalls = JsonSerializer.Serialize(balls, options);
-                string now = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss.fff");
+                string collisionInfo = JsonSerializer.Serialize(balls);
+                string date = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss.fff");
 
-                string newJsonObject = "{" + String.Format("\n\t\"datetime\": \"{0}\",\n\t\"balls\":{1}\n", now, jsonBalls) + "}";
-                mutex.WaitOne();
-                File.AppendAllText("BallsListLog.json", newJsonObject);
-                mutex.ReleaseMutex();
+                string collisionLog = "{" + String.Format("\n\t\"Date\": \"{0}\",\n\t\"BallsList\":{1}\n", date, collisionInfo) + "}";
+                File.AppendAllText("BallsListLog.json", collisionLog);
                 stopWatch.Stop();
-                await Task.Delay((int)(interval - stopWatch.ElapsedMilliseconds));
+                await Task.Delay((int)(period - stopWatch.ElapsedMilliseconds));
             }
         }
 
