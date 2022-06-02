@@ -114,7 +114,7 @@ namespace Data
             string collisionLog = "{" + String.Format("\n\t\"Date\": \"{0}\",\n\t\"CollisionBetween\":{1}\n", date, collisionInfo) + "}";
             File.AppendAllText(filename, collisionLog);
         }
-
+        //
      
 
     }
