@@ -114,7 +114,7 @@ namespace Logic
 
                 if (DetectCollision(ball, secondBall))
                 {
-
+                  
                     double m1 = ball.Weight;
                     double m2 = secondBall.Weight;
                     double v1x = ball.X1;
@@ -130,14 +130,16 @@ namespace Logic
                     double u2x = 2 * m1 * v1x / (m1 + m2) + (m2 - m1) * v2x / (m1 + m2);
                     double u2y = 2 * m1 * v1y / (m1 + m2) + (m2 - m1) * v2y / (m1 + m2);
                    
-                    mutex.WaitOne();
+                    
                     ball.X1 = u1x;
                     ball.Y1 = u1y;
                     secondBall.X1 = u2x;
                     secondBall.Y1 = u2y;
+
+                    mutex.WaitOne();
                     BallCollisionLog ballCollisionLog = new BallCollisionLog(ball, secondBall);
-                   
                     dataLayer.AppendToFile("BallLog.json", ballCollisionLog);
+
                     mutex.ReleaseMutex();
                    
                 }

@@ -45,7 +45,7 @@ namespace Data
                 int ballsCount = balls.Count;
                 for (int i = 0; i < number; i++)
                 {
-                    mutex.WaitOne();
+                   
                     int Xrandomizer = random.Next(1, 2);
                     int Yrandomizer = random.Next(1, 2);
                     int r = 10;
@@ -58,7 +58,7 @@ namespace Data
                     
                     Ball ball = new Ball(i + ballsCount, x0, y0, x1, y1, r, weight);
                     balls.Add(ball);
-                    mutex.ReleaseMutex();
+                   
                 }
             }
                 return balls;
@@ -72,11 +72,15 @@ namespace Data
 
         public override void AppendToFile(string filename, BallCollisionLog ballCollisionLog)
         {
+           
             string collisionInfo = JsonSerializer.Serialize(ballCollisionLog);
             string date = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss.fff");
             string collisionLog = "{" + String.Format("\n\t\"Date\": \"{0}\",\n\t\"CollisionBetween\":{1}\n", date, collisionInfo) + "}";
             File.AppendAllText(filename, collisionLog);
+            
         }
+
+     
 
     }
 }
