@@ -128,33 +128,22 @@ namespace Logic
                     double v2x = secondBall.X1;
                     double v2y = secondBall.Y1;
 
-
-
-                    double u1x = (m1 - m2) * v1x / (m1 + m2) + (2 * m2) * v2x / (m1 + m2);
-                    double u1y = (m1 - m2) * v1y / (m1 + m2) + (2 * m2) * v2y / (m1 + m2);
-
-                    double u2x = 2 * m1 * v1x / (m1 + m2) + (m2 - m1) * v2x / (m1 + m2);
-                    double u2y = 2 * m1 * v1y / (m1 + m2) + (m2 - m1) * v2y / (m1 + m2);
-
                     lock (ball)
                     {
+                        double u1x = (m1 - m2) * v1x / (m1 + m2) + (2 * m2) * v2x / (m1 + m2);
+                        double u1y = (m1 - m2) * v1y / (m1 + m2) + (2 * m2) * v2y / (m1 + m2);
                         ball.X1 = u1x;
                         ball.Y1 = u1y;
                         ball.BetweenBallsCollisions += 1;
                     }
                     lock (secondBall)
                     {
+                        double u2x = 2 * m1 * v1x / (m1 + m2) + (m2 - m1) * v2x / (m1 + m2);
+                        double u2y = 2 * m1 * v1y / (m1 + m2) + (m2 - m1) * v2y / (m1 + m2);
                         secondBall.X1 = u2x;
                         secondBall.Y1 = u2y;
                         secondBall.BetweenBallsCollisions += 1;
                     }
- 
-                    lock (locker)
-                    {
-                        BallCollisionLog ballCollisionLog = new BallCollisionLog(ball, secondBall);
-                        dataLayer.AppendToFile("BallsLog.json", ballCollisionLog);
-                    }
-                    
                     
                 }
 
