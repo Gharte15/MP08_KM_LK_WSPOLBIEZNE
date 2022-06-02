@@ -56,7 +56,7 @@ namespace Logic
 
             }
             dataLayer.CreateLoggingTask(1000, dataLayer.GetBalls());
-           
+
         }
 
         public override void Stop()
@@ -79,7 +79,7 @@ namespace Logic
 
             int bottomBorder = this.height - diameter;
 
-            
+
             if (ball.X0 <= 0)
             {
                 ball.X0 = -ball.X0;
@@ -106,7 +106,7 @@ namespace Logic
                 ball.Y1 = -ball.Y1;
                 ball.BetweenWallCollisions += 1;
             }
-            
+
         }
 
         public override void ChangeDirection(IBall ball)
@@ -121,34 +121,34 @@ namespace Logic
 
                 if (DetectCollision(ball, secondBall))
                 {
-                    double m1 = ball.Weight;
-                    double m2 = secondBall.Weight;
-                    double v1x = ball.X1;
-                    double v1y = ball.Y1;
-                    double v2x = secondBall.X1;
-                    double v2y = secondBall.Y1;
-
                     lock (ball)
                     {
-                        double u1x = (m1 - m2) * v1x / (m1 + m2) + (2 * m2) * v2x / (m1 + m2);
-                        double u1y = (m1 - m2) * v1y / (m1 + m2) + (2 * m2) * v2y / (m1 + m2);
+                        double m1 = ball.Weight;
+                        double v1x = ball.X1;
+                        double v1y = ball.Y1;
+                        double u1x;
+                        double u1y;
+                        lock (secondBall)
+                        {
+                            double v2x = secondBall.X1;
+                            double v2y = secondBall.Y1;
+                            double m2 = secondBall.Weight;
+                            u1x = (m1 - m2) * v1x / (m1 + m2) + (2 * m2) * v2x / (m1 + m2);
+                            u1y = (m1 - m2) * v1y / (m1 + m2) + (2 * m2) * v2y / (m1 + m2);
+                            double u2x = 2 * m1 * v1x / (m1 + m2) + (m2 - m1) * v2x / (m1 + m2);
+                            double u2y = 2 * m1 * v1y / (m1 + m2) + (m2 - m1) * v2y / (m1 + m2);
+                            secondBall.X1 = u2x;
+                            secondBall.Y1 = u2y;
+                            secondBall.BetweenBallsCollisions += 1;
+                        }
                         ball.X1 = u1x;
                         ball.Y1 = u1y;
                         ball.BetweenBallsCollisions += 1;
                     }
-                    lock (secondBall)
-                    {
-                        double u2x = 2 * m1 * v1x / (m1 + m2) + (m2 - m1) * v2x / (m1 + m2);
-                        double u2y = 2 * m1 * v1y / (m1 + m2) + (m2 - m1) * v2y / (m1 + m2);
-                        secondBall.X1 = u2x;
-                        secondBall.Y1 = u2y;
-                        secondBall.BetweenBallsCollisions += 1;
-                    }
-                    
                 }
 
             }
-            
+
 
         }
         internal bool DetectCollision(IBall a, IBall b)
@@ -200,9 +200,9 @@ namespace Logic
             IBall ball = (IBall)sender;
             mutex.WaitOne();
             WallCollision(ball);
-            mutex.ReleaseMutex();                  
+            mutex.ReleaseMutex();
             ChangeDirection(ball);
-            
+
         }
 
 

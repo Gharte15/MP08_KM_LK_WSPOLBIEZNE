@@ -21,7 +21,6 @@ namespace Data
         public abstract void StopLoggingTask();
 
         public abstract Task CreateLoggingTask(int interval, IList Balls);
-        public abstract void AppendToFile(string filename, BallCollisionLog ballCollisionLog);
         public static DataAbstractApi CreateApi()
         {
             return new DataApi();
@@ -106,16 +105,5 @@ namespace Data
                 await Task.Delay((int)(period - stopWatch.ElapsedMilliseconds));
             }
         }
-
-        public override void AppendToFile(string filename, BallCollisionLog ballCollisionLog)
-        {
-            string collisionInfo = JsonSerializer.Serialize(ballCollisionLog);
-            string date = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss.fff");
-            string collisionLog = "{" + String.Format("\n\t\"Date\": \"{0}\",\n\t\"CollisionBetween\":{1}\n", date, collisionInfo) + "}";
-            File.AppendAllText(filename, collisionLog);
-        }
-        //
-     
-
     }
 }
