@@ -180,7 +180,8 @@ namespace Logic
 
         public override IList CreateBalls(int number)
         {
-            for (int i = 0; i < number; i++)
+            int tempNumber = balls.Count;
+            for (int i = tempNumber; i < tempNumber + number; i++)
             {
                 bool contain = true;
                 bool count;
@@ -208,7 +209,7 @@ namespace Logic
                         contain = false;
                     }
                 }
-                
+                //balls[i].PropertyChanged += BallPositionChanged;
             }
             return balls;
         }
