@@ -8,15 +8,12 @@ namespace Data
 {
     public interface IBall : INotifyPropertyChanged
     {
-        double X0 { get; set; }
-        double Y0 { get; set; }
-        double X1 { get; set; }
-        double Y1 { get; set; }
+        double X0 { get; }
+        double Y0 { get; }
+        double XSpeed { get; set; }
+        double YSpeed { get; set; }
         int R { get;}
         double Weight { get; }
-        double BetweenBallsCollisions { get; set; }
-        double BetweenWallCollisions { get; set; }
-
         int Identifier { get; }
         void Move(double time);
         void Stop();
@@ -27,10 +24,8 @@ namespace Data
     {
         private double x0;
         private double y0;
-        private double x1;
-        private double y1;
-        private double betweenBallsCollisions;
-        private double betweenWallCollisions;
+        private double xSpeed;
+        private double ySpeed;
         private readonly int r;
         private readonly int d;
         private readonly double weight;
@@ -39,25 +34,23 @@ namespace Data
         private Task task;
         private bool stop = false;
 
-        public Ball(int id, double x0, double y0, double x1, double y1, int r, double weight, double c)
+        public Ball(int id, double x0, double y0, double xSpeed, double ySpeed, int r, double weight)
         {
             identifier = id;
             this.x0 = x0;
             this.y0 = y0;
-            this.x1 = x1;
-            this.y1 = y1;
+            this.xSpeed = xSpeed;
+            this.ySpeed = ySpeed;
             this.r = r;
             this.weight = weight;
             this.d = 2 * r;
-            this.betweenBallsCollisions = c;
-            this.betweenWallCollisions = c;
         }
 
         public int Identifier { get => identifier; }
         public double X0
         {
             get => x0;
-            set
+            private set
             {
                 if (value.Equals(x0))
                 {
@@ -71,7 +64,7 @@ namespace Data
         public double Y0
         {
             get => y0;
-            set
+            private set
             {
                 if (value.Equals(y0))
                 {
@@ -83,68 +76,51 @@ namespace Data
             }
         }
 
-        public double X1
+        public double XSpeed
         {
-            get => x1;
+            get => xSpeed;
             set
             {
-                if (value.Equals(x1))
+                if (value.Equals(xSpeed))
                 {
                     return;
                 }
 
-                x1 = value;
+                xSpeed = value;
             }
         }
-        public double Y1
+        public double YSpeed
         {
-            get => y1;
+            get => ySpeed;
             set
             {
-                if (value.Equals(y1))
+                if (value.Equals(ySpeed))
                 {
                     return;
                 }
 
-                y1 = value;
-            }
-        }
-
-        public double BetweenBallsCollisions
-        {
-            get => betweenBallsCollisions;
-            set
-            {
-                if (value.Equals(betweenBallsCollisions))
-                {
-                    return;
-                }
-
-                betweenBallsCollisions = value;
-            }
-        }
-        public double BetweenWallCollisions
-        {
-            get => betweenWallCollisions;
-            set
-            {
-                if (value.Equals(betweenWallCollisions))
-                {
-                    return;
-                }
-
-                betweenWallCollisions = value;
+                ySpeed = value;
             }
         }
 
         public int R { get => r; }
         public int D { get => d; }
         public double Weight { get => weight; }
+        public void NewVelociy(double x1, double y1)
+        {
+            lock (this)
+            {
+                XSpeed = xSpeed;
+                YSpeed = ySpeed;
+            }
+        }
         public void Move(double time)
         {
-        
-            X0 += X1 * time;
-            Y0 += Y1 * time;
+            lock (this)
+            {
+                X0 += XSpeed * time;
+                Y0 += YSpeed * time;
+            }
             
         }
 

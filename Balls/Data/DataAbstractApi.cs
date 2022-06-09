@@ -13,14 +13,10 @@ namespace Data
     {
         public abstract int Width { get; }
         public abstract int Height { get; }
-        public abstract int GetCount { get; }
-        public abstract IList CreateBalls(int number);
-        public abstract IList GetBalls();
-
-        public abstract IBall GetBall(int index);
+        public abstract IBall CreateBall(int count);
         public abstract void StopLoggingTask();
 
-        public abstract Task CreateLoggingTask(int interval, IList Balls);
+        public abstract Task CreateLoggingTask(IList Balls);
         public static DataAbstractApi CreateApi()
         {
             return new DataApi();
@@ -28,55 +24,38 @@ namespace Data
     }
     internal class DataApi : DataAbstractApi
     {
-        private ObservableCollection<IBall> balls { get; }
-        private readonly Mutex mutex = new Mutex();
         private readonly Stopwatch stopWatch;
-
         private readonly Random random = new Random();
         private bool stop;
 
         public override int Width { get; }
         public override int Height { get; }
-        public ObservableCollection<IBall> Balls => balls;
         public DataApi()
         {
-            balls = new ObservableCollection<IBall>();
             Height = Board.height;
             Width = Board.width;
             stopWatch = new Stopwatch();
         }
-        public override IList CreateBalls(int number)
+        public override IBall CreateBall(int count)
         {
-            Random random = new Random();
-            if (number > 0)
+            int radius = 10;
+            double weight = radius;
+
+            double x = random.Next(radius + 10, Width - radius - 10);
+            double y = random.Next(radius + 10, Height - radius - 10);
+            double xSpeed = 0;
+            double ySpeed = 0;
+            while (xSpeed == 0)
             {
-                int ballsCount = balls.Count;
-                for (int i = 0; i < number; i++)
-                {
-                    int r = 10;
-                    int weight = 30;
-                    int x0 = random.Next(2*r, Width - 2*r);
-                    int y0 = random.Next(2*r, Height - 2*r);
-
-                    int x1 = random.Next(-5, 5);
-                    int y1 = random.Next(-5, 5);
-                    
-                    Ball ball = new Ball(i + ballsCount, x0, y0, x1, y1, r, weight, 0);
-                    balls.Add(ball);
-                   
-                }
+                xSpeed = random.Next(-5, 5) + random.NextDouble();
             }
-                return balls;
-        }
-        public override int GetCount { get => balls.Count; }
+            while (ySpeed == 0)
+            {
+                ySpeed = random.Next(-5, 5) + random.NextDouble();
+            }
+            Ball ball = new Ball(count, x, y, xSpeed, ySpeed, radius, weight);
 
-        public override IBall GetBall(int index)
-        {
-            return balls[index];
-        }
-        public override IList GetBalls()
-        {
-            return balls;
+          return ball;
         }
 
         public override void StopLoggingTask()
@@ -84,25 +63,24 @@ namespace Data
             stop = true;
         }
 
-        public override Task CreateLoggingTask(int period, IList Balls)
+        public override Task CreateLoggingTask(IList Balls)
         {
             stop = false;
-            return CallLogger(period, Balls);
+            return CallLogger(Balls);
         }
 
-        internal async Task CallLogger(int period, IList Balls)
+        internal async Task CallLogger(IList Balls)
         {
+            string collisionInfo = JsonSerializer.Serialize(Balls);
             while (!stop)
             {
                 stopWatch.Reset();
                 stopWatch.Start();
-                string collisionInfo = JsonSerializer.Serialize(balls);
                 string date = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss.fff");
-
                 string collisionLog = "{" + String.Format("\n\t\"Date\": \"{0}\",\n\t\"BallsList\":{1}\n", date, collisionInfo) + "}";
                 File.AppendAllText("BallsListLog.json", collisionLog);
                 stopWatch.Stop();
-                await Task.Delay((int)(period - stopWatch.ElapsedMilliseconds));
+                await Task.Delay((int)(stopWatch.ElapsedMilliseconds));
             }
         }
     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Text.Json;
@@ -15,14 +16,12 @@ namespace Logic
     {
         public abstract int Width { get; }
         public abstract int Height { get; }
-        public abstract int GetCount { get; }
         public abstract IList CreateBalls(int count);
         public abstract void Start();
         public abstract void Stop();
-        public abstract IBall GetBall(int index);
-        public abstract void WallCollision(IBall ball);
-        public abstract void ChangeDirection(IBall ball);
-        public abstract void BallPositionChanged(object sender, PropertyChangedEventArgs args);
+        //public abstract void WallCollision(IBall ball);
+        //public abstract void ChangeDirection(IBall ball);
+        //public abstract void BallPositionChanged(object sender, PropertyChangedEventArgs args);
         public static LogicAbstractApi CreateApi()
         {
             return new LogicApi();
@@ -31,14 +30,14 @@ namespace Logic
     }
     internal class LogicApi : LogicAbstractApi
     {
+        private ObservableCollection<IBall> balls { get; }
         private int width;
         private int height;
         private readonly DataAbstractApi dataLayer;
-        private readonly Mutex mutex = new Mutex();
-        private readonly object locker = new object();
 
         public LogicApi()
         {
+            balls = new ObservableCollection<IBall>();
             dataLayer = DataAbstractApi.CreateApi();
             this.width = dataLayer.Width;
             this.height = dataLayer.Height;
@@ -47,30 +46,26 @@ namespace Logic
 
         public override int Width { get; }
         public override int Height { get; }
-
+        public ObservableCollection<IBall> Balls => balls;
         public override void Start()
         {
-            for (int i = 0; i < dataLayer.GetCount; i++)
+            for (int i = 0; i < balls.Count; i++)
             {
-                dataLayer.GetBall(i).CreateTask(30);
-
+                balls[i].CreateTask(30);
             }
-            dataLayer.CreateLoggingTask(1000, dataLayer.GetBalls());
-
         }
 
         public override void Stop()
         {
-            for (int i = 0; i < dataLayer.GetCount; i++)
+            for (int i = 0; i < balls.Count; i++)
             {
-                dataLayer.GetBall(i).Stop();
+                balls[i].Stop();
 
             }
-            dataLayer.StopLoggingTask();
         }
 
 
-        public override void WallCollision(IBall ball)
+        internal void WallCollision(IBall ball)
         {
 
             int diameter = ball.R * 2;
@@ -79,41 +74,45 @@ namespace Logic
 
             int bottomBorder = this.height - diameter;
 
-
-            if (ball.X0 <= 0)
+            
+            if (ball.X0 <= ball.R)
             {
-                ball.X0 = -ball.X0;
-                ball.X1 = -ball.X1;
-                ball.BetweenWallCollisions += 1;
+                if (ball.XSpeed <= 0)
+                {
+                    ball.XSpeed = -ball.XSpeed;
+                }
             }
 
             else if (ball.X0 >= rightBorder)
             {
-                ball.X0 = rightBorder - (ball.X0 - rightBorder);
-                ball.X1 = -ball.X1;
-                ball.BetweenWallCollisions += 1;
+                if (ball.XSpeed > 0)
+                {
+                    ball.XSpeed = -ball.XSpeed;
+                }
             }
-            if (ball.Y0 <= 0)
+            if (ball.Y0 <= ball.R)
             {
-                ball.Y0 = -ball.Y0;
-                ball.Y1 = -ball.Y1;
-                ball.BetweenWallCollisions += 1;
+                if (ball.YSpeed <= 0)
+                {
+                    ball.YSpeed = -ball.YSpeed;
+                }
             }
 
             else if (ball.Y0 >= bottomBorder)
             {
-                ball.Y0 = bottomBorder - (ball.Y0 - bottomBorder);
-                ball.Y1 = -ball.Y1;
-                ball.BetweenWallCollisions += 1;
+                if (ball.YSpeed > 0)
+                {
+                    ball.YSpeed = -ball.YSpeed;
+                }
             }
-
+            
         }
 
-        public override void ChangeDirection(IBall ball)
+        internal void ChangeDirection(IBall ball)
         {
-            for (int i = 0; i < dataLayer.GetCount; i++)
+            for (int i = 0; i < balls.Count; i++)
             {
-                IBall secondBall = dataLayer.GetBall(i);
+                IBall secondBall = balls[i];
                 if (ball.Identifier == secondBall.Identifier)
                 {
                     continue;
@@ -124,26 +123,23 @@ namespace Logic
                     lock (ball)
                     {
                         double m1 = ball.Weight;
-                        double v1x = ball.X1;
-                        double v1y = ball.Y1;
+                        double v1x = ball.XSpeed;
+                        double v1y = ball.YSpeed;
                         double u1x;
                         double u1y;
-                        lock (secondBall)
-                        {
-                            double v2x = secondBall.X1;
-                            double v2y = secondBall.Y1;
-                            double m2 = secondBall.Weight;
-                            u1x = (m1 - m2) * v1x / (m1 + m2) + (2 * m2) * v2x / (m1 + m2);
-                            u1y = (m1 - m2) * v1y / (m1 + m2) + (2 * m2) * v2y / (m1 + m2);
-                            double u2x = 2 * m1 * v1x / (m1 + m2) + (m2 - m1) * v2x / (m1 + m2);
-                            double u2y = 2 * m1 * v1y / (m1 + m2) + (m2 - m1) * v2y / (m1 + m2);
-                            secondBall.X1 = u2x;
-                            secondBall.Y1 = u2y;
-                            secondBall.BetweenBallsCollisions += 1;
-                        }
-                        ball.X1 = u1x;
-                        ball.Y1 = u1y;
-                        ball.BetweenBallsCollisions += 1;
+                        
+                        double v2x = secondBall.XSpeed;
+                        double v2y = secondBall.YSpeed;
+                        double m2 = secondBall.Weight;
+                        u1x = (m1 - m2) * v1x / (m1 + m2) + (2 * m2) * v2x / (m1 + m2);
+                        u1y = (m1 - m2) * v1y / (m1 + m2) + (2 * m2) * v2y / (m1 + m2);
+                        double u2x = 2 * m1 * v1x / (m1 + m2) + (m2 - m1) * v2x / (m1 + m2);
+                        double u2y = 2 * m1 * v1y / (m1 + m2) + (m2 - m1) * v2y / (m1 + m2);
+                        secondBall.XSpeed = u2x;
+                        secondBall.YSpeed = u2y;
+                        
+                        ball.XSpeed = u1x;
+                        ball.YSpeed = u1y;
                     }
                 }
 
@@ -168,39 +164,57 @@ namespace Logic
 
         internal double Distance(IBall a, IBall b)
         {
-            double x1 = a.X0 + a.R + a.X1;
-            double y1 = a.Y0 + a.R + a.Y1;
-            double x2 = b.X0 + b.R + b.Y1;
-            double y2 = b.Y0 + b.R + b.Y1;
+            double x1, y1, x2, y2;
+            lock (this)
+            {
+                x1 = a.X0 + a.R + a.XSpeed;
+                y1 = a.Y0 + a.R + a.YSpeed;
+                x2 = b.X0 + b.R + b.YSpeed;
+                y2 = b.Y0 + b.R + b.YSpeed;
 
+            }
             return Math.Sqrt((Math.Pow(x1 - x2, 2) + Math.Pow(y1 - y2, 2)));
         }
 
-
         public override IList CreateBalls(int number)
         {
-            int previousCount = dataLayer.GetCount;
-            IList temp = dataLayer.CreateBalls(number);
-            for (int i = 0; i < dataLayer.GetCount - previousCount; i++)
+            for (int i = 0; i < number; i++)
             {
-                dataLayer.GetBall(previousCount + i).PropertyChanged += BallPositionChanged;
+                bool contain = true;
+                bool count;
+
+                while (contain)
+                {
+                    balls.Add(dataLayer.CreateBall(i + 1));
+                    count = false;
+                    for (int j = 0; j < i; j++)
+                    {
+
+                        if (balls[i].X0 <= balls[j].X0 + 2*balls[j].R && balls[i].X0 + 2*balls[i].R >= balls[j].X0)
+                        {
+                            if (balls[i].Y0 <= balls[j].Y0 + 2*balls[j].R && balls[i].Y0 + 2*balls[i].R >= balls[j].Y0)
+                            {
+
+                                count = true;
+                                balls.Remove(balls[i]);
+                                break;
+                            }
+                        }
+                    }
+                    if (!count)
+                    {
+                        contain = false;
+                    }
+                }
+                balls[i].PropertyChanged += BallPositionChanged;
             }
-            return temp;
+            return balls;
         }
 
-        public override IBall GetBall(int index)
-        {
-            return dataLayer.GetBall(index);
-        }
-
-        public override int GetCount { get => dataLayer.GetCount; }
-
-        public override void BallPositionChanged(object sender, PropertyChangedEventArgs args)
+        internal void BallPositionChanged(object sender, PropertyChangedEventArgs args)
         {
             IBall ball = (IBall)sender;
-            mutex.WaitOne();
             WallCollision(ball);
-            mutex.ReleaseMutex();
             ChangeDirection(ball);
 
         }
