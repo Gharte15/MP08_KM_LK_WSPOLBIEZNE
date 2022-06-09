@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -15,8 +16,7 @@ namespace Data
         public abstract int Height { get; }
         public abstract IBall CreateBall(int count);
         public abstract void StopLoggingTask();
-
-        public abstract Task CreateLoggingTask(IList Balls);
+        public abstract Task CreateLoggingTask(ConcurrentQueue<IBall> logQueue);
         public static DataAbstractApi CreateApi()
         {
             return new DataApi();
@@ -63,22 +63,34 @@ namespace Data
             stop = true;
         }
 
-        public override Task CreateLoggingTask(IList Balls)
+        public override Task CreateLoggingTask(ConcurrentQueue<IBall> logQueue)
         {
             stop = false;
-            return CallLogger(Balls);
+            return CallLogger(logQueue);
         }
 
-        internal async Task CallLogger(IList Balls)
+        internal async Task CallLogger(ConcurrentQueue<IBall> logQueue)
         {
-            string collisionInfo = JsonSerializer.Serialize(Balls);
             while (!stop)
             {
                 stopWatch.Reset();
                 stopWatch.Start();
-                string date = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss.fff");
-                string collisionLog = "{" + String.Format("\n\t\"Date\": \"{0}\",\n\t\"BallsList\":{1}\n", date, collisionInfo) + "}";
-                File.AppendAllText("BallsListLog.json", collisionLog);
+                logQueue.TryDequeue(out IBall logObject);
+                if (logObject != null)
+                {
+                    string diagnostics = JsonSerializer.Serialize(logObject);
+                    string date = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss.fff");
+                    string log = "{" + String.Format("\n\t\"Date\": \"{0}\",\n\t\"Info\":{1}\n", date, diagnostics) + "}";
+
+                    lock (this)
+                    {
+                        File.AppendAllText("BallsLogQueue.json", log);
+                    }
+                }
+                else 
+                { 
+                    return; 
+                }
                 stopWatch.Stop();
                 await Task.Delay((int)(stopWatch.ElapsedMilliseconds));
             }

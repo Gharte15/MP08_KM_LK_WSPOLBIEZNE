@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -10,14 +11,17 @@ namespace Data
     {
         double X0 { get; }
         double Y0 { get; }
-        double XSpeed { get; set; }
-        double YSpeed { get; set; }
+        double XSpeed { get; }
+        double YSpeed { get; }
         int R { get;}
+        int D { get;}
         double Weight { get; }
         int Identifier { get; }
-        void Move(double time);
+        void SaveRequest(ConcurrentQueue<IBall> queue);
+        void NewVelocity(double xSpeed, double ySpeed);
+        void Move(double time, ConcurrentQueue<IBall> queue);
         void Stop();
-        void CreateTask(int period);
+        void CreateTask(int period, ConcurrentQueue<IBall> queue);
     }
 
     internal class Ball : IBall
@@ -42,8 +46,8 @@ namespace Data
             this.xSpeed = xSpeed;
             this.ySpeed = ySpeed;
             this.r = r;
-            this.weight = weight;
             this.d = 2 * r;
+            this.weight = weight;
         }
 
         public int Identifier { get => identifier; }
@@ -58,7 +62,7 @@ namespace Data
                 }
 
                 x0 = value;
-                RaisePropertyChanged(nameof(X0));
+               // RaisePropertyChanged(nameof(X0));
             }
         }
         public double Y0
@@ -72,14 +76,14 @@ namespace Data
                 }
 
                 y0 = value;
-                RaisePropertyChanged(nameof(Y0));
+               // RaisePropertyChanged(nameof(Y0));
             }
         }
 
         public double XSpeed
         {
             get => xSpeed;
-            set
+            private set
             {
                 if (value.Equals(xSpeed))
                 {
@@ -92,7 +96,7 @@ namespace Data
         public double YSpeed
         {
             get => ySpeed;
-            set
+            private set
             {
                 if (value.Equals(ySpeed))
                 {
@@ -106,22 +110,29 @@ namespace Data
         public int R { get => r; }
         public int D { get => d; }
         public double Weight { get => weight; }
-        public void NewVelociy(double x1, double y1)
+        public void NewVelocity(double xSpeed, double ySpeed)
         {
             lock (this)
             {
                 XSpeed = xSpeed;
                 YSpeed = ySpeed;
-            }
+            }         
         }
-        public void Move(double time)
+        public void Move(double time, ConcurrentQueue<IBall> queue)
         {
             lock (this)
             {
                 X0 += XSpeed * time;
+                RaisePropertyChanged(nameof(X0));
                 Y0 += YSpeed * time;
+                RaisePropertyChanged(nameof(Y0));
+                SaveRequest(queue);
             }
-            
+
+        }
+        public void SaveRequest(ConcurrentQueue<IBall> queue)
+        {
+            queue.Enqueue(new Ball(this.Identifier, this.X0, this.Y0, this.XSpeed, this.YSpeed, this.R, this.Weight));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -130,13 +141,13 @@ namespace Data
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-        public void CreateTask(int period)
+        public void CreateTask(int period, ConcurrentQueue<IBall> queue)
         {
             stop = false;
-            task = Run(period);
+            task = Run(period, queue);
         }
 
-        private async Task Run(int period)
+        private async Task Run(int period, ConcurrentQueue<IBall> queue)
         {
             while (!stop)
             {
@@ -144,7 +155,7 @@ namespace Data
                 stopwatch.Start();
                 if (!stop)
                 {
-                    Move((period - stopwatch.ElapsedMilliseconds) / 16);
+                    Move(((period - stopwatch.ElapsedMilliseconds) / 16), queue);
                 }
                 stopwatch.Stop();
 
@@ -155,8 +166,5 @@ namespace Data
         {
             stop = true;
         }
-       
-
-
     }
 }

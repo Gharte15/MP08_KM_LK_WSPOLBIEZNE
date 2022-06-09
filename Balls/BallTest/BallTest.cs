@@ -1,4 +1,4 @@
-﻿/*using System;
+﻿using System;
 using System.Collections.Generic;
 using Logic;
 using Data;
@@ -26,6 +26,19 @@ namespace BallTest
             Assert.AreEqual(Board.height, dataLayer.Height);
 
         }
+
+        //[TestMethod]
+        //public void TestNewVelocity()
+        //{
+        //    dataLayer = DataAbstractApi.CreateApi();
+        //    dataLayer.CreateBalls(1);
+        //    Assert.IsTrue(dataLayer.GetBall(0).X0 >= 0);
+        //    Assert.IsTrue(dataLayer.GetBall(0).X0 <= Board.width);
+        //    Assert.IsTrue(dataLayer.GetBall(0).Y0 >= 0);
+        //    Assert.IsTrue(dataLayer.GetBall(0).Y0 <= Board.height);
+
+        //}
+
 
         [TestMethod]
         public void TestCords()
@@ -101,4 +114,4 @@ namespace BallTest
 
        
     }
-}*/
+}

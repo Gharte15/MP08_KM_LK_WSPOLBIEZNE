@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Data;
+using FluentAssertions.Common;
 
 namespace Logic
 {
@@ -19,9 +20,6 @@ namespace Logic
         public abstract IList CreateBalls(int count);
         public abstract void Start();
         public abstract void Stop();
-        //public abstract void WallCollision(IBall ball);
-        //public abstract void ChangeDirection(IBall ball);
-        //public abstract void BallPositionChanged(object sender, PropertyChangedEventArgs args);
         public static LogicAbstractApi CreateApi()
         {
             return new LogicApi();
@@ -34,6 +32,7 @@ namespace Logic
         private int width;
         private int height;
         private readonly DataAbstractApi dataLayer;
+        private ConcurrentQueue<IBall> queue;
 
         public LogicApi()
         {
@@ -41,6 +40,7 @@ namespace Logic
             dataLayer = DataAbstractApi.CreateApi();
             this.width = dataLayer.Width;
             this.height = dataLayer.Height;
+            this.queue = new ConcurrentQueue<IBall>();
 
         }
 
@@ -51,8 +51,9 @@ namespace Logic
         {
             for (int i = 0; i < balls.Count; i++)
             {
-                balls[i].CreateTask(30);
+                balls[i].CreateTask(20, queue);
             }
+            dataLayer.CreateLoggingTask(queue);
         }
 
         public override void Stop()
@@ -79,7 +80,7 @@ namespace Logic
             {
                 if (ball.XSpeed <= 0)
                 {
-                    ball.XSpeed = -ball.XSpeed;
+                    ball.NewVelocity(-ball.XSpeed, ball.YSpeed);
                 }
             }
 
@@ -87,14 +88,14 @@ namespace Logic
             {
                 if (ball.XSpeed > 0)
                 {
-                    ball.XSpeed = -ball.XSpeed;
+                    ball.NewVelocity(-ball.XSpeed, ball.YSpeed);
                 }
             }
             if (ball.Y0 <= ball.R)
             {
                 if (ball.YSpeed <= 0)
                 {
-                    ball.YSpeed = -ball.YSpeed;
+                    ball.NewVelocity(ball.XSpeed, -ball.YSpeed);
                 }
             }
 
@@ -102,7 +103,7 @@ namespace Logic
             {
                 if (ball.YSpeed > 0)
                 {
-                    ball.YSpeed = -ball.YSpeed;
+                    ball.NewVelocity(ball.XSpeed, -ball.YSpeed);
                 }
             }
             
@@ -127,19 +128,18 @@ namespace Logic
                         double v1y = ball.YSpeed;
                         double u1x;
                         double u1y;
-                        
-                        double v2x = secondBall.XSpeed;
-                        double v2y = secondBall.YSpeed;
-                        double m2 = secondBall.Weight;
-                        u1x = (m1 - m2) * v1x / (m1 + m2) + (2 * m2) * v2x / (m1 + m2);
-                        u1y = (m1 - m2) * v1y / (m1 + m2) + (2 * m2) * v2y / (m1 + m2);
-                        double u2x = 2 * m1 * v1x / (m1 + m2) + (m2 - m1) * v2x / (m1 + m2);
-                        double u2y = 2 * m1 * v1y / (m1 + m2) + (m2 - m1) * v2y / (m1 + m2);
-                        secondBall.XSpeed = u2x;
-                        secondBall.YSpeed = u2y;
-                        
-                        ball.XSpeed = u1x;
-                        ball.YSpeed = u1y;
+                        lock (secondBall)
+                        {
+                            double v2x = secondBall.XSpeed;
+                            double v2y = secondBall.YSpeed;
+                            double m2 = secondBall.Weight;
+                            u1x = (m1 - m2) * v1x / (m1 + m2) + (2 * m2) * v2x / (m1 + m2);
+                            u1y = (m1 - m2) * v1y / (m1 + m2) + (2 * m2) * v2y / (m1 + m2);
+                            double u2x = 2 * m1 * v1x / (m1 + m2) + (m2 - m1) * v2x / (m1 + m2);
+                            double u2y = 2 * m1 * v1y / (m1 + m2) + (m2 - m1) * v2y / (m1 + m2);
+                            secondBall.NewVelocity(u2x, u2y);
+                            ball.NewVelocity(u1x, u1y);
+                        }
                     }
                 }
 
