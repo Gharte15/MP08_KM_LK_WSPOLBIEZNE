@@ -113,42 +113,44 @@ namespace Logic
 
         internal void ChangeDirection(IBall ball)
         {
-            for (int i = 0; i < balls.Count; i++)
-            {
-                IBall secondBall = balls[i];
-                if (ball.Identifier == secondBall.Identifier)
+            lock (ball)
+            { 
+                for (int i = 0; i < balls.Count; i++)
                 {
-                    continue;
-                }
-
-                if (DetectCollision(ball, secondBall))
-                {
-                    lock (ball)
+                    IBall secondBall = balls[i];
+                    if (ball.Identifier == secondBall.Identifier)
                     {
-                        double m1 = ball.Weight;
-                        double v1x = ball.XSpeed;
-                        double v1y = ball.YSpeed;
-                        double u1x;
-                        double u1y;
-                        lock (secondBall)
+                        continue;
+                    }
+                    lock (secondBall)
+                    {
+                        if (DetectCollision(ball, secondBall))
                         {
+                    
+                            double m1 = ball.Weight;
+                            double v1x = ball.XSpeed;
+                            double v1y = ball.YSpeed;
+                            double u1x;
+                            double u1y;
+                        
                             double v2x = secondBall.XSpeed;
                             double v2y = secondBall.YSpeed;
                             double m2 = secondBall.Weight;
+
                             u1x = (m1 - m2) * v1x / (m1 + m2) + (2 * m2) * v2x / (m1 + m2);
                             u1y = (m1 - m2) * v1y / (m1 + m2) + (2 * m2) * v2y / (m1 + m2);
                             double u2x = 2 * m1 * v1x / (m1 + m2) + (m2 - m1) * v2x / (m1 + m2);
                             double u2y = 2 * m1 * v1y / (m1 + m2) + (m2 - m1) * v2y / (m1 + m2);
-                            secondBall.NewVelocity(u2x, u2y);
+                        
+                            secondBall.NewVelocity(u2x, u2y);                    
+                            ball.NewVelocity(u1x, u1y);
                         }
-                        ball.NewVelocity(u1x, u1y);
                     }
                 }
-
             }
-
-
+            return;
         }
+
         internal bool DetectCollision(IBall a, IBall b)
         {
             bool flag = false;
