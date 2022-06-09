@@ -37,6 +37,7 @@ namespace Data
         private readonly Stopwatch stopwatch = new Stopwatch();
         private Task task;
         private bool stop = false;
+        private object locker = new object();
 
         public Ball(int id, double x0, double y0, double xSpeed, double ySpeed, int r, double weight)
         {
@@ -112,7 +113,7 @@ namespace Data
         public double Weight { get => weight; }
         public void NewVelocity(double xSpeed, double ySpeed)
         {
-            lock (this)
+            lock (locker)
             {
                 XSpeed = xSpeed;
                 YSpeed = ySpeed;
@@ -120,7 +121,7 @@ namespace Data
         }
         public void Move(double time, ConcurrentQueue<IBall> queue)
         {
-            lock (this)
+            lock (locker)
             {
                 X0 += XSpeed * time;
                 RaisePropertyChanged(nameof(X0));

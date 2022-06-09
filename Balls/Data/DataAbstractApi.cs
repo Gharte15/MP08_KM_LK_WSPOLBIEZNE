@@ -27,6 +27,7 @@ namespace Data
         private readonly Stopwatch stopWatch;
         private readonly Random random = new Random();
         private bool stop;
+        private object locker = new object();
 
         public override int Width { get; }
         public override int Height { get; }
@@ -82,7 +83,7 @@ namespace Data
                     string date = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss.fff");
                     string log = "{" + String.Format("\n\t\"Date\": \"{0}\",\n\t\"Info\":{1}\n", date, diagnostics) + "}";
 
-                    lock (this)
+                    lock (locker)
                     {
                         File.AppendAllText("BallsLogQueue.json", log);
                     }

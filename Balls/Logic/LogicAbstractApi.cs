@@ -61,8 +61,8 @@ namespace Logic
             for (int i = 0; i < balls.Count; i++)
             {
                 balls[i].Stop();
-
             }
+            dataLayer.StopLoggingTask();
         }
 
 
