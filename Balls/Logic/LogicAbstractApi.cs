@@ -51,6 +51,7 @@ namespace Logic
         {
             for (int i = 0; i < balls.Count; i++)
             {
+                balls[i].PropertyChanged += BallPositionChanged;
                 balls[i].CreateTask(20, queue);
             }
             dataLayer.CreateLoggingTask(queue);
@@ -61,6 +62,7 @@ namespace Logic
             for (int i = 0; i < balls.Count; i++)
             {
                 balls[i].Stop();
+                balls[i].PropertyChanged -= BallPositionChanged;
             }
             dataLayer.StopLoggingTask();
         }
@@ -138,8 +140,8 @@ namespace Logic
                             double u2x = 2 * m1 * v1x / (m1 + m2) + (m2 - m1) * v2x / (m1 + m2);
                             double u2y = 2 * m1 * v1y / (m1 + m2) + (m2 - m1) * v2y / (m1 + m2);
                             secondBall.NewVelocity(u2x, u2y);
-                            ball.NewVelocity(u1x, u1y);
                         }
+                        ball.NewVelocity(u1x, u1y);
                     }
                 }
 
@@ -206,7 +208,7 @@ namespace Logic
                         contain = false;
                     }
                 }
-                balls[i].PropertyChanged += BallPositionChanged;
+                
             }
             return balls;
         }
